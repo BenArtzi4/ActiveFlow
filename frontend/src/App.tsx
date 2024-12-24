@@ -1,15 +1,30 @@
-import WorkoutList from "./components/WorkoutList";
-import WorkoutForm from "./components/WorkoutForm";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./context/AuthProvider";
+import RequireAuth from "./components/RequireAuth";
+import HomePage from "./pages/HomePage";
+import LoginPage from "./pages/LoginPage";
 
-function App() {
+const App = () => {
   return (
-    <div className="max-w-4xl mx-auto mt-10">
-      <h1 className="text-4xl font-bold mb-6 text-center">ActiveFlow</h1>
-      <WorkoutForm />
-      <hr className="my-6" />
-      <WorkoutList />
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public Route */}
+          <Route path="/login" element={<LoginPage />} />
+
+          {/* Protected Route */}
+          <Route
+            path="/"
+            element={
+              <RequireAuth>
+                <HomePage />
+              </RequireAuth>
+            }
+          />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;
