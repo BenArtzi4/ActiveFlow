@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment directories
+env/
+venv/
+
+# Configuration files with sensitive information
+.env
+
+# Logs
+*.log
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Test coverage files
+htmlcov/
+*.cover
+*.py,cover
+.hypothesis/
+.cache/
+
+# Python-specific package management
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary files and backups
+*.bak
+*.tmp
+
+# FastAPI and Uvicorn logs
+*.log
+logs/
