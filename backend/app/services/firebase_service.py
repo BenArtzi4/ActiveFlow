@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import auth, credentials, firestore
 
 # Initialize Firebase
-cred = credentials.Certificate("env/firebase_credentials.json")  # Path to your Firebase service account key
+cred = credentials.Certificate("config/firebase_credentials.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -17,7 +17,6 @@ async def register_user(email: str, password: str, username: str):
     return user_doc
 
 async def login_user(email: str, password: str):
-    # Note: Firebase Admin SDK doesn't verify passwords directly. Use the client-side SDK for authentication.
     user = auth.get_user_by_email(email)
     return {"uid": user.uid, "email": user.email}
 

@@ -9,6 +9,7 @@ venv/
 
 # Configuration files with sensitive information
 .env
+config/
 
 # Logs
 *.log

@@ -5,14 +5,8 @@ import {
   GoogleAuthProvider,
 } from "firebase/auth";
 import { auth } from "../firebaseConfig";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import {
-  getFirestore,
-  collection,
-  doc,
-  getDoc,
-  setDoc,
-} from "firebase/firestore";
 
 const db = getFirestore();
 
@@ -26,23 +20,26 @@ const RegisterPage: React.FC = () => {
   const provider = new GoogleAuthProvider();
 
   const checkUsernameAvailability = async (username: string) => {
+    if (!username.trim()) {
+      setIsUsernameAvailable(true);
+      return;
+    }
     try {
-      const usernameDoc = await getDoc(
-        doc(collection(db, "usernames"), username)
-      );
+      const usernameDoc = await getDoc(doc(db, "usernames", username));
       setIsUsernameAvailable(!usernameDoc.exists());
-    } catch (err) {
-      console.error("Error checking username:", err);
+    } catch {
       setIsUsernameAvailable(false);
     }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!isUsernameAvailable) {
-      setError("Username is already taken.");
+      setError("This username is already taken.");
       return;
     }
+
     try {
       const userCredential = await createUserWithEmailAndPassword(
         auth,
@@ -50,30 +47,38 @@ const RegisterPage: React.FC = () => {
         password
       );
       const user = userCredential.user;
-
-      // Save the username to Firestore
-      await setDoc(doc(collection(db, "usernames"), username), {
-        uid: user.uid,
-      });
+      await setDoc(doc(db, "usernames", username), { uid: user.uid, email });
       navigate("/");
-    } catch (err: unknown) {
+    } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError("Registration failed: " + err.message);
       } else {
-        setError("An unknown error occurred");
+        setError("An unknown error occurred.");
       }
     }
   };
 
   const handleGoogleSignIn = async () => {
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      const usernameDoc = await getDoc(
+        doc(db, "usernames", user.displayName || "")
+      );
+      if (!usernameDoc.exists()) {
+        await setDoc(doc(db, "usernames", user.displayName || ""), {
+          uid: user.uid,
+          email: user.email,
+        });
+      }
+
       navigate("/");
-    } catch (err: unknown) {
+    } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("An unknown error occurred");
+        setError("An unknown error occurred.");
       }
     }
   };
@@ -106,7 +111,7 @@ const RegisterPage: React.FC = () => {
                   ? "focus:ring-2 focus:ring-teal-400"
                   : "border-red-500 focus:ring-2 focus:ring-red-400"
               } transition`}
-              placeholder="Enter username"
+              placeholder="Enter a username"
               required
             />
             {!isUsernameAvailable && (
@@ -149,63 +154,24 @@ const RegisterPage: React.FC = () => {
               required
             />
           </div>
-          {/* Register Button */}
           <button
             type="submit"
             className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-lg font-medium text-teal-600 bg-gray-50 border-2 border-teal-500 rounded-full hover:text-white group hover:bg-gray-50 w-full"
           >
-            <span className="absolute left-0 block w-full h-0 transition-all bg-teal-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
-            <span className="absolute right-0 flex items-center justify-start w-10 h-10 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
-              <svg
-                className="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                ></path>
-              </svg>
-            </span>
-            <span className="relative z-10">Register</span>
+            Register
           </button>
         </form>
-        {/* Register with Google Button */}
         <button
           onClick={handleGoogleSignIn}
           className="text-white bg-teal-500 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-full text-lg px-12 py-3 text-center inline-flex items-center justify-center w-full mt-4 border-2 border-teal-500"
         >
-          <svg
-            className="w-5 h-5 mr-2"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="currentColor"
-            viewBox="0 0 18 19"
-          >
-            <path
-              fillRule="evenodd"
-              d="M8.842 18.083a8.8 8.8 0 0 1-8.65-8.948 8.841 8.841 0 0 1 8.8-8.652h.153a8.464 8.464 0 0 1 5.7 2.257l-2.193 2.038A5.27 5.27 0 0 0 9.09 3.4a5.882 5.882 0 0 0-.2 11.76h.124a5.091 5.091 0 0 0 5.248-4.057L14.3 11H9V8h8.34c.066.543.095 1.09.088 1.636-.086 5.053-3.463 8.449-8.4 8.449l-.186-.002Z"
-              clipRule="evenodd"
-            />
-          </svg>
           Sign up with Google
         </button>
-        {/* Back to Login Button */}
         <button
           onClick={() => navigate("/login")}
           className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-sm font-medium text-teal-600 bg-gray-50 border-2 border-teal-500 rounded-full hover:text-white group hover:bg-gray-50 w-full mt-4"
         >
-          <span className="absolute left-0 block w-full h-0 transition-all bg-teal-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
-          <span className="absolute right-0 flex items-center justify-center w-full h-full text-teal-50 duration-300 transform translate-x-full group-hover:translate-x-0 ease">
-            Back to Login
-          </span>
-          <span className="relative z-10 group-hover:opacity-0 transition-opacity duration-300">
-            Already have an account? Login here
-          </span>
+          Back to Login
         </button>
       </div>
     </div>
