@@ -1,8 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import workouts
-
-
+from app.routers import workouts, auth
 
 app = FastAPI()
 
@@ -14,11 +12,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-
 @app.get("/")
 def read_root():
     return {"message": "Welcome to ActiveFlow"}
 
-
-app.include_router(workouts.router, prefix="/api", tags=["Workouts"])
+# Routers for workouts and authentication
+app.include_router(workouts.router, prefix="/api/workouts", tags=["Workouts"])
+app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
