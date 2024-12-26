@@ -16,6 +16,20 @@ interface Workout {
   equipment_used?: string[];
 }
 
+// Utility function to capitalize the first letter of the workout type
+const capitalizeFirstLetter = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+const formatDate = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
 const WorkoutDetails: React.FC<{ workout: Workout }> = ({ workout }) => {
   const [expanded, setExpanded] = useState(false);
 
@@ -23,14 +37,15 @@ const WorkoutDetails: React.FC<{ workout: Workout }> = ({ workout }) => {
     <div className="border p-4 rounded shadow-sm">
       <div className="flex justify-between items-center">
         <div className="flex items-center">
-          {/* Use the icon for the workout type */}
           <img
             src={`/icons/workouts/${workout.type.toLowerCase()}.png`}
             alt={workout.type}
             className="h-10 w-10"
           />
           <p className="ml-4 font-semibold">
-            {workout.trainer_notes || "Workout"}
+            {`${capitalizeFirstLetter(workout.type)} - ${formatDate(
+              workout.date
+            )}`}
           </p>
         </div>
         <button
@@ -43,11 +58,10 @@ const WorkoutDetails: React.FC<{ workout: Workout }> = ({ workout }) => {
       {expanded && (
         <div className="mt-4 space-y-2">
           <p>
-            <strong>Type:</strong> {workout.type}
+            <strong>Type:</strong> {capitalizeFirstLetter(workout.type)}
           </p>
           <p>
-            <strong>Date:</strong>{" "}
-            {new Date(workout.date).toLocaleString("en-US")}
+            <strong>Date:</strong> {formatDate(workout.date)}
           </p>
           <p>
             <strong>Duration:</strong> {workout.duration_minutes} minutes

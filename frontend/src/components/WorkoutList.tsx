@@ -24,25 +24,35 @@ interface Workout {
 
 const WorkoutList = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
         const user = auth.currentUser;
-        if (!user) return;
+        if (!user) {
+          setError("User not logged in. Please log in to view your workouts.");
+          return;
+        }
 
         const workoutsRef = collection(db, "workouts");
         const q = query(workoutsRef, where("userId", "==", user.uid));
         const querySnapshot = await getDocs(q);
 
-        const workoutsData = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Workout[];
+        if (!querySnapshot.empty) {
+          const workoutsData = querySnapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Workout[];
 
-        setWorkouts(workoutsData);
+          setWorkouts(workoutsData);
+        } else {
+          setWorkouts([]);
+          setError("No workouts found.");
+        }
       } catch (error) {
         console.error("Error fetching workouts:", error);
+        setError("Failed to fetch workouts. Please try again.");
       }
     };
 
@@ -52,7 +62,9 @@ const WorkoutList = () => {
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">Workout History</h2>
-      {workouts.length === 0 ? (
+      {error ? (
+        <p className="text-red-500">{error}</p>
+      ) : workouts.length === 0 ? (
         <p>No workouts available.</p>
       ) : (
         <div className="space-y-4">

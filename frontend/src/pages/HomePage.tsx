@@ -8,18 +8,26 @@ const db = getFirestore();
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
     const fetchUsername = async () => {
-      const user = auth.currentUser;
-      if (user) {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
         const userDoc = await getDoc(doc(db, "users", user.uid));
         if (userDoc.exists()) {
-          setUsername(userDoc.data().username);
+          setUsername(userDoc.data().username || "User");
+        } else {
+          setUsername("User");
         }
+      } catch (error) {
+        console.error("Error fetching username:", error);
+        setUsername("User");
       }
     };
+
     fetchUsername();
   }, []);
 
