@@ -20,7 +20,7 @@ const WorkoutForm: React.FC = () => {
     equipment_used: "",
   });
 
-  // Handle input changes with proper typing
+  // Handle input changes
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -36,22 +36,37 @@ const WorkoutForm: React.FC = () => {
     try {
       const user = auth.currentUser;
       if (!user) {
+        console.error("User not logged in");
         alert("You must be logged in to add a workout.");
         return;
       }
 
-      // Prepare workout data for Firestore
+      console.log("Current user:", user);
+
+      // Validate form data before submission
+      if (!formData.type || !formData.date || !formData.duration_minutes) {
+        console.error("Missing required fields in formData:", formData);
+        alert("Please fill in all required fields.");
+        return;
+      }
+
+      // Prepare workout data with userId matching Firestore rules
       const workoutData = {
         ...formData,
-        userId: auth.currentUser?.uid,
-        date: new Date(formData.date).toISOString(),
+        userId: user.uid, // Ensure this matches the Firestore rules
+        date: new Date(formData.date).toISOString(), // Ensure the date is in ISO format
       };
 
-      await addDoc(collection(db, "workouts"), workoutData);
+      console.log("Submitting workout data:", workoutData);
+
+      // Add document to Firestore
+      const docRef = await addDoc(collection(db, "workouts"), workoutData);
+      console.log("Workout added with ID:", docRef.id);
+
       alert("Workout added successfully!");
-      navigate("/");
+      navigate("/"); // Redirect to the home page
     } catch (error) {
-      console.error("Error adding workout:", error);
+      console.error("Error adding workout:", error); // Log errors for debugging
       alert("Failed to add workout. Please try again.");
     }
   };
