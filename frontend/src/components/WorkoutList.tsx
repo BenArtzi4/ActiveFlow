@@ -44,13 +44,13 @@ const WorkoutList = () => {
             .map((doc) => {
               const data = doc.data() as Omit<Workout, "id">; // Exclude `id` from the type
               return {
-                id: doc.id, // Add `id` explicitly
-                ...data, // Spread the rest of the fields
+                id: doc.id,
+                ...data,
               };
             })
             .sort(
               (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-            ); // Sort by date (newest first)
+            ); // Sort by date
 
           setWorkouts(workoutsData);
         } else {

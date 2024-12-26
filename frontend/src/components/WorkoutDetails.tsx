@@ -11,12 +11,12 @@ interface Workout {
   end_location?: string;
   distance?: number;
   calories_burned?: number;
-  main_muscles?: string[];
-  poses?: string[] | string; // Updated to accept string as well
-  equipment_used?: string[];
+  main_muscles?: string[] | string;
+  poses?: string[] | string;
+  equipment_used?: string[] | string;
+  details?: string; // Optional details field
 }
 
-// Utility function to capitalize the first letter of the workout type
 const capitalizeFirstLetter = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
@@ -93,7 +93,10 @@ const WorkoutDetails: React.FC<{ workout: Workout }> = ({ workout }) => {
           )}
           {workout.main_muscles && (
             <p>
-              <strong>Main Muscles:</strong> {workout.main_muscles.join(", ")}
+              <strong>Main Muscles:</strong>{" "}
+              {Array.isArray(workout.main_muscles)
+                ? workout.main_muscles.join(", ")
+                : workout.main_muscles}
             </p>
           )}
           {workout.poses && (
@@ -101,13 +104,21 @@ const WorkoutDetails: React.FC<{ workout: Workout }> = ({ workout }) => {
               <strong>Yoga Poses:</strong>{" "}
               {Array.isArray(workout.poses)
                 ? workout.poses.join(", ")
-                : workout.poses || "Not specified"}
+                : workout.poses}
             </p>
           )}
           {workout.equipment_used && (
             <p>
               <strong>Equipment Used:</strong>{" "}
-              {workout.equipment_used.join(", ")}
+              {Array.isArray(workout.equipment_used)
+                ? workout.equipment_used.join(", ")
+                : workout.equipment_used}
+            </p>
+          )}
+          {/* Render details only if it exists and is not empty */}
+          {workout.details && (
+            <p>
+              <strong>Details:</strong> {workout.details}
             </p>
           )}
         </div>

@@ -18,6 +18,7 @@ const WorkoutForm: React.FC = () => {
     main_muscles: "",
     poses: "",
     equipment_used: "",
+    details: "", // New field for workout details
   });
 
   // Handle input changes
@@ -41,8 +42,6 @@ const WorkoutForm: React.FC = () => {
         return;
       }
 
-      console.log("Current user:", user);
-
       // Validate form data before submission
       if (!formData.type || !formData.date || !formData.duration_minutes) {
         console.error("Missing required fields in formData:", formData);
@@ -57,11 +56,8 @@ const WorkoutForm: React.FC = () => {
         date: new Date(formData.date).toISOString(), // Ensure the date is in ISO format
       };
 
-      console.log("Submitting workout data:", workoutData);
-
       // Add document to Firestore
-      const docRef = await addDoc(collection(db, "workouts"), workoutData);
-      console.log("Workout added with ID:", docRef.id);
+      await addDoc(collection(db, "workouts"), workoutData);
 
       alert("Workout added successfully!");
       navigate("/"); // Redirect to the home page
@@ -210,59 +206,23 @@ const WorkoutForm: React.FC = () => {
           </div>
         )}
 
-        {formData.type !== "running" && formData.type !== "" && (
-          <div>
-            <label
-              htmlFor="location"
-              className="block font-medium text-gray-700 mb-2"
-            >
-              Location
-            </label>
-            <input
-              type="text"
-              id="location"
-              name="location"
-              value={formData.location}
-              onChange={handleChange}
-              placeholder="Enter the location"
-              className="block w-full border p-3 rounded-lg shadow-sm"
-            />
-          </div>
-        )}
-
-        {formData.type === "running" && (
-          <>
-            <div>
-              <label
-                htmlFor="start_location"
-                className="block font-medium mb-2"
-              >
-                Start Location
-              </label>
-              <input
-                type="text"
-                id="start_location"
-                name="start_location"
-                value={formData.start_location}
-                onChange={handleChange}
-                className="block w-full border p-3 rounded-lg shadow-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="end_location" className="block font-medium mb-2">
-                End Location
-              </label>
-              <input
-                type="text"
-                id="end_location"
-                name="end_location"
-                value={formData.end_location}
-                onChange={handleChange}
-                className="block w-full border p-3 rounded-lg shadow-sm"
-              />
-            </div>
-          </>
-        )}
+        {/* Optional Details */}
+        <div>
+          <label
+            htmlFor="details"
+            className="block font-medium text-gray-700 mb-2"
+          >
+            Additional Details (Optional)
+          </label>
+          <textarea
+            id="details"
+            name="details"
+            placeholder="Add any other relevant details about the workout"
+            value={formData.details}
+            onChange={handleChange}
+            className="block w-full border p-3 rounded-lg shadow-sm"
+          />
+        </div>
 
         <div className="flex flex-col items-center space-y-4 mt-6">
           <button
