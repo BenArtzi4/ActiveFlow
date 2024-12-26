@@ -12,7 +12,7 @@ interface Workout {
   distance?: number;
   calories_burned?: number;
   main_muscles?: string[];
-  poses?: string[];
+  poses?: string[] | string; // Updated to accept string as well
   equipment_used?: string[];
 }
 
@@ -98,7 +98,10 @@ const WorkoutDetails: React.FC<{ workout: Workout }> = ({ workout }) => {
           )}
           {workout.poses && (
             <p>
-              <strong>Yoga Poses:</strong> {workout.poses.join(", ")}
+              <strong>Yoga Poses:</strong>{" "}
+              {Array.isArray(workout.poses)
+                ? workout.poses.join(", ")
+                : workout.poses || "Not specified"}
             </p>
           )}
           {workout.equipment_used && (

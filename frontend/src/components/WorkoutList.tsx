@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
 import { auth } from "../firebaseConfig";
 import WorkoutDetails from "./WorkoutDetails";
@@ -18,7 +18,7 @@ interface Workout {
   distance?: number;
   calories_burned?: number;
   main_muscles?: string[];
-  poses?: string[];
+  poses?: string[] | string;
   equipment_used?: string[];
 }
 
@@ -40,10 +40,14 @@ const WorkoutList = () => {
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
-          const workoutsData = querySnapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          })) as Workout[];
+          const workoutsData = querySnapshot.docs
+            .map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }))
+            .sort(
+              (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+            ) as Workout[]; // Sort by date (newest first)
 
           setWorkouts(workoutsData);
         } else {
