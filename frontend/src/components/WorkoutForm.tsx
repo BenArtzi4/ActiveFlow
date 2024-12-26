@@ -1,6 +1,7 @@
+import { auth, db } from "../firebaseConfig";
+import { collection, addDoc } from "firebase/firestore";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
 
 const WorkoutForm: React.FC = () => {
   const navigate = useNavigate();
@@ -28,16 +29,31 @@ const WorkoutForm: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission with proper typing
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // Handle form submission to Firestore
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    api
-      .post("/api/workouts", formData)
-      .then(() => {
-        alert("Workout added successfully!");
-        navigate("/");
-      })
-      .catch((error) => console.error("Error adding workout:", error));
+
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        alert("You must be logged in to add a workout.");
+        return;
+      }
+
+      // Prepare workout data for Firestore
+      const workoutData = {
+        ...formData,
+        userId: auth.currentUser?.uid,
+        date: new Date(formData.date).toISOString(),
+      };
+
+      await addDoc(collection(db, "workouts"), workoutData);
+      alert("Workout added successfully!");
+      navigate("/");
+    } catch (error) {
+      console.error("Error adding workout:", error);
+      alert("Failed to add workout. Please try again.");
+    }
   };
 
   return (

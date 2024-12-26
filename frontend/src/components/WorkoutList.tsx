@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
-import api from "../api";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
+import { auth } from "../firebaseConfig";
 import WorkoutDetails from "./WorkoutDetails";
+
+const db = getFirestore();
 
 interface Workout {
   id: string;
@@ -22,10 +26,27 @@ const WorkoutList = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
   useEffect(() => {
-    api
-      .get(`/api/workouts/${localStorage.getItem("userId")}`)
-      .then((response) => setWorkouts(response.data))
-      .catch((error) => console.error("Error fetching workouts:", error));
+    const fetchWorkouts = async () => {
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        const workoutsRef = collection(db, "workouts");
+        const q = query(workoutsRef, where("userId", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+
+        const workoutsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Workout[];
+
+        setWorkouts(workoutsData);
+      } catch (error) {
+        console.error("Error fetching workouts:", error);
+      }
+    };
+
+    fetchWorkouts();
   }, []);
 
   return (

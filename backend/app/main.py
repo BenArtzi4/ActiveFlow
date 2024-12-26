@@ -20,4 +20,4 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 def read_root():
     return {"message": "Welcome to ActiveFlow"}
 
-app.include_router(workouts.router, prefix="/api", tags=["Workouts"])
+app.include_router(workouts.router, prefix="/api/workouts", tags=["Workouts"])
