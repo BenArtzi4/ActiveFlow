@@ -4,11 +4,9 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
 } from "firebase/auth";
-import { auth } from "../firebaseConfig";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { auth, db } from "../firebaseConfig";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-
-const db = getFirestore();
 
 const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -27,8 +25,9 @@ const RegisterPage: React.FC = () => {
     try {
       const usernameDoc = await getDoc(doc(db, "usernames", username));
       setIsUsernameAvailable(!usernameDoc.exists());
-    } catch {
-      setIsUsernameAvailable(false);
+    } catch (err) {
+      console.error("Error checking username availability:", err);
+      setIsUsernameAvailable(true);
     }
   };
 
@@ -41,17 +40,38 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
+      // Create user in Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
         password
       );
       const user = userCredential.user;
-      await setDoc(doc(db, "usernames", username), { uid: user.uid, email });
+
+      // Save user data in Firestore
+      await Promise.all([
+        setDoc(doc(db, "users", user.uid), {
+          uid: user.uid,
+          email: user.email,
+          username,
+        }),
+        setDoc(doc(db, "usernames", username), {
+          uid: user.uid,
+        }),
+      ]);
+
       navigate("/");
-    } catch (err) {
+    } catch (err: unknown) {
+      console.error("Error during registration:", err);
       if (err instanceof Error) {
-        setError("Registration failed: " + err.message);
+        const firebaseError = err as { code?: string };
+        if (firebaseError.code === "auth/email-already-in-use") {
+          setError("Email is already in use. Please use a different email.");
+        } else if (firebaseError.code === "auth/weak-password") {
+          setError("Password is too weak. Please use a stronger password.");
+        } else {
+          setError("Registration failed. Please try again.");
+        }
       } else {
         setError("An unknown error occurred.");
       }
@@ -67,19 +87,22 @@ const RegisterPage: React.FC = () => {
         doc(db, "usernames", user.displayName || "")
       );
       if (!usernameDoc.exists()) {
-        await setDoc(doc(db, "usernames", user.displayName || ""), {
-          uid: user.uid,
-          email: user.email,
-        });
+        await Promise.all([
+          setDoc(doc(db, "users", user.uid), {
+            uid: user.uid,
+            email: user.email,
+            username: user.displayName || "",
+          }),
+          setDoc(doc(db, "usernames", user.displayName || ""), {
+            uid: user.uid,
+          }),
+        ]);
       }
 
       navigate("/");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred.");
-      }
+    } catch (err: unknown) {
+      console.error("Error during Google sign-in:", err);
+      setError("Google sign-in failed. Please try again.");
     }
   };
 
@@ -91,6 +114,7 @@ const RegisterPage: React.FC = () => {
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleRegister} className="space-y-6">
+          {/* Username Field */}
           <div>
             <label
               htmlFor="username"
@@ -120,6 +144,7 @@ const RegisterPage: React.FC = () => {
               </p>
             )}
           </div>
+          {/* Email Field */}
           <div>
             <label
               htmlFor="email"
@@ -137,6 +162,7 @@ const RegisterPage: React.FC = () => {
               required
             />
           </div>
+          {/* Password Field */}
           <div>
             <label
               htmlFor="password"
@@ -154,6 +180,7 @@ const RegisterPage: React.FC = () => {
               required
             />
           </div>
+          {/* Register Button */}
           <button
             type="submit"
             className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-lg font-medium text-teal-600 bg-gray-50 border-2 border-teal-500 rounded-full hover:text-white group hover:bg-gray-50 w-full"
@@ -161,12 +188,14 @@ const RegisterPage: React.FC = () => {
             Register
           </button>
         </form>
+        {/* Google Sign-in */}
         <button
           onClick={handleGoogleSignIn}
           className="text-white bg-teal-500 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-full text-lg px-12 py-3 text-center inline-flex items-center justify-center w-full mt-4 border-2 border-teal-500"
         >
           Sign up with Google
         </button>
+        {/* Back to Login */}
         <button
           onClick={() => navigate("/login")}
           className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-sm font-medium text-teal-600 bg-gray-50 border-2 border-teal-500 rounded-full hover:text-white group hover:bg-gray-50 w-full mt-4"

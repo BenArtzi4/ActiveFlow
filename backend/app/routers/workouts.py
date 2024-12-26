@@ -19,3 +19,13 @@ async def fetch_workouts(user_id: str):
         return workouts
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+    
+
+@router.get("/{user_id}")
+async def fetch_user_workouts(user_id: str):
+    try:
+        workouts = await get_workouts(user_id)
+        return workouts
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+

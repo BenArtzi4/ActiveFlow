@@ -1,13 +1,21 @@
 import { useEffect, useState } from "react";
 import api from "../api";
+import WorkoutDetails from "./WorkoutDetails";
 
 interface Workout {
-  id: number;
+  id: string;
   type: string;
   date: string;
   duration_minutes: number;
+  trainer_notes?: string;
   location?: string;
-  details?: string;
+  start_location?: string;
+  end_location?: string;
+  distance?: number;
+  calories_burned?: number;
+  main_muscles?: string[];
+  poses?: string[];
+  equipment_used?: string[];
 }
 
 const WorkoutList = () => {
@@ -15,7 +23,7 @@ const WorkoutList = () => {
 
   useEffect(() => {
     api
-      .get("/api/workouts")
+      .get(`/api/workouts/${localStorage.getItem("userId")}`)
       .then((response) => setWorkouts(response.data))
       .catch((error) => console.error("Error fetching workouts:", error));
   }, []);
@@ -26,31 +34,11 @@ const WorkoutList = () => {
       {workouts.length === 0 ? (
         <p>No workouts available.</p>
       ) : (
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {workouts.map((workout) => (
-            <li key={workout.id} className="border p-4 rounded">
-              <p>
-                <strong>Type:</strong> {workout.type}
-              </p>
-              <p>
-                <strong>Date:</strong> {new Date(workout.date).toLocaleString()}
-              </p>
-              <p>
-                <strong>Duration:</strong> {workout.duration_minutes} minutes
-              </p>
-              {workout.location && (
-                <p>
-                  <strong>Location:</strong> {workout.location}
-                </p>
-              )}
-              {workout.details && (
-                <p>
-                  <strong>Details:</strong> {workout.details}
-                </p>
-              )}
-            </li>
+            <WorkoutDetails key={workout.id} workout={workout} />
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
