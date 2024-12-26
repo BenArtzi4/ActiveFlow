@@ -29,7 +29,6 @@ const LoginPage: React.FC = () => {
       );
       const user = userCredential.user;
 
-      // Fetch user data from Firestore
       const userDoc = await getDoc(doc(db, "users", user.uid));
       if (!userDoc.exists()) {
         throw new Error("No Firestore record found for this user.");
@@ -38,7 +37,6 @@ const LoginPage: React.FC = () => {
       const userData = userDoc.data();
       console.log("User data fetched:", userData);
 
-      // Store user information in local storage
       localStorage.setItem("userId", user.uid);
       localStorage.setItem("username", userData?.username || "");
 
@@ -109,7 +107,7 @@ const LoginPage: React.FC = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 text-lg border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
+              className="w-full px-6 py-3 text-lg border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
               placeholder="Enter your email"
               required
             />
@@ -127,7 +125,7 @@ const LoginPage: React.FC = () => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 text-lg border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
+              className="w-full px-6 py-3 text-lg border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
               placeholder="Enter your password"
               required
             />
@@ -135,24 +133,46 @@ const LoginPage: React.FC = () => {
           {/* Login Button */}
           <button
             type="submit"
-            className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-lg font-medium text-sky-600 bg-gray-50 border-2 border-sky-500 rounded-full hover:text-white group hover:bg-gray-50 w-full"
+            className="relative inline-flex items-center justify-center px-16 py-4 overflow-hidden text-lg font-medium text-sky-600 bg-gray-50 border-2 border-sky-500 rounded-full hover:text-white group hover:bg-gray-50 w-full"
           >
-            Login
+            <span className="absolute left-0 block w-full h-0 transition-all bg-sky-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
+            <span className="relative z-10">Login</span>
           </button>
         </form>
-        {/* Google Sign-in */}
+        {/* Login with Google Button */}
         <button
           onClick={handleGoogleSignIn}
-          className="text-white bg-sky-500 focus:ring-4 focus:outline-none focus:ring-sky-300 font-medium rounded-full text-lg px-12 py-3 text-center inline-flex items-center justify-center w-full mt-4 border-2 border-sky-500"
+          className="relative inline-flex items-center justify-center px-16 py-4 overflow-hidden text-lg font-medium text-white bg-sky-500 border-2 border-sky-500 rounded-full w-full mt-4 group"
         >
-          Sign in with Google
+          <img
+            src="/images/google-white-icon.png"
+            alt="Google Logo"
+            className="w-6 h-6 relative z-10 group-hover:hidden"
+          />
+          <img
+            src="/images/google-blue-icon.png"
+            alt="Google Logo Hover"
+            className="w-6 h-6 relative z-10 hidden group-hover:block"
+          />
+          <span className="relative z-10 ml-2 group-hover:text-sky-500 transition-opacity duration-300">
+            Sign in with Google
+          </span>
+          <span className="absolute left-0 block w-full h-full bg-white top-0 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out z-0"></span>
         </button>
-        {/* Register Redirect */}
+        {/* Register Button */}
         <button
           onClick={() => navigate("/register")}
-          className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-sm font-medium text-sky-600 bg-gray-50 border-2 border-sky-500 rounded-full hover:text-white group hover:bg-gray-50 w-full mt-4"
+          className="relative inline-flex items-center justify-center px-16 py-4 overflow-hidden text-lg font-medium text-sky-600 bg-gray-50 border-2 border-sky-500 rounded-full hover:text-white group hover:bg-gray-50 w-full mt-4"
         >
-          Don't have an account? Register here
+          <span className="absolute left-0 block w-full h-0 transition-all bg-sky-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
+          <span className="relative z-10 group-hover:opacity-0 transition-opacity duration-300 text-lg">
+            Don't have an account?
+            <br />
+            Register here
+          </span>
+          <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            Register
+          </span>
         </button>
       </div>
     </div>

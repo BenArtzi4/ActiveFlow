@@ -1,9 +1,5 @@
 import React, { useState } from "react";
-import {
-  createUserWithEmailAndPassword,
-  signInWithPopup,
-  GoogleAuthProvider,
-} from "firebase/auth";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +11,6 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
   const navigate = useNavigate();
-  const provider = new GoogleAuthProvider();
 
   const checkUsernameAvailability = async (username: string) => {
     if (!username.trim()) {
@@ -40,7 +35,6 @@ const RegisterPage: React.FC = () => {
     }
 
     try {
-      // Create user in Firebase Authentication
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         email,
@@ -48,7 +42,6 @@ const RegisterPage: React.FC = () => {
       );
       const user = userCredential.user;
 
-      // Save user data in Firestore
       await Promise.all([
         setDoc(doc(db, "users", user.uid), {
           uid: user.uid,
@@ -78,34 +71,6 @@ const RegisterPage: React.FC = () => {
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const usernameDoc = await getDoc(
-        doc(db, "usernames", user.displayName || "")
-      );
-      if (!usernameDoc.exists()) {
-        await Promise.all([
-          setDoc(doc(db, "users", user.uid), {
-            uid: user.uid,
-            email: user.email,
-            username: user.displayName || "",
-          }),
-          setDoc(doc(db, "usernames", user.displayName || ""), {
-            uid: user.uid,
-          }),
-        ]);
-      }
-
-      navigate("/");
-    } catch (err: unknown) {
-      console.error("Error during Google sign-in:", err);
-      setError("Google sign-in failed. Please try again.");
-    }
-  };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-300 via-blue-300 to-purple-400 pattern-dots-md bg-opacity-10">
       <div className="w-full max-w-md p-8 bg-white shadow-lg rounded-xl">
@@ -114,7 +79,7 @@ const RegisterPage: React.FC = () => {
         </h2>
         {error && <p className="text-red-500 mb-4">{error}</p>}
         <form onSubmit={handleRegister} className="space-y-6">
-          {/* Username Field */}
+          {/* Form Fields */}
           <div>
             <label
               htmlFor="username"
@@ -144,7 +109,6 @@ const RegisterPage: React.FC = () => {
               </p>
             )}
           </div>
-          {/* Email Field */}
           <div>
             <label
               htmlFor="email"
@@ -162,7 +126,6 @@ const RegisterPage: React.FC = () => {
               required
             />
           </div>
-          {/* Password Field */}
           <div>
             <label
               htmlFor="password"
@@ -185,22 +148,21 @@ const RegisterPage: React.FC = () => {
             type="submit"
             className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-lg font-medium text-teal-600 bg-gray-50 border-2 border-teal-500 rounded-full hover:text-white group hover:bg-gray-50 w-full"
           >
-            Register
+            <span className="absolute left-0 block w-full h-0 transition-all bg-teal-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
+            <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+              Register
+            </span>
           </button>
         </form>
-        {/* Google Sign-in */}
-        <button
-          onClick={handleGoogleSignIn}
-          className="text-white bg-teal-500 focus:ring-4 focus:outline-none focus:ring-teal-300 font-medium rounded-full text-lg px-12 py-3 text-center inline-flex items-center justify-center w-full mt-4 border-2 border-teal-500"
-        >
-          Sign up with Google
-        </button>
         {/* Back to Login */}
         <button
           onClick={() => navigate("/login")}
-          className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-sm font-medium text-teal-600 bg-gray-50 border-2 border-teal-500 rounded-full hover:text-white group hover:bg-gray-50 w-full mt-4"
+          className="relative inline-flex items-center justify-center px-12 py-3 overflow-hidden text-lg font-medium text-teal-600 bg-gray-50 border-2 border-teal-500 rounded-full hover:text-white group hover:bg-gray-50 w-full mt-4"
         >
-          Back to Login
+          <span className="absolute left-0 block w-full h-0 transition-all bg-teal-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
+          <span className="relative z-10 group-hover:text-white transition-colors duration-300">
+            Back to Login
+          </span>
         </button>
       </div>
     </div>
