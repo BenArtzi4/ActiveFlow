@@ -9,7 +9,7 @@ const WorkoutForm: React.FC = () => {
     type: "",
     date: "",
     duration_minutes: 0,
-    trainer_notes: "",
+    details: "",
     location: "",
     start_location: "",
     end_location: "",
@@ -18,7 +18,6 @@ const WorkoutForm: React.FC = () => {
     main_muscles: "",
     poses: "",
     equipment_used: "",
-    details: "", // New field for workout details
   });
 
   // Handle input changes
@@ -42,27 +41,26 @@ const WorkoutForm: React.FC = () => {
         return;
       }
 
-      // Validate form data before submission
+      // Validate form data
       if (!formData.type || !formData.date || !formData.duration_minutes) {
-        console.error("Missing required fields in formData:", formData);
         alert("Please fill in all required fields.");
         return;
       }
 
-      // Prepare workout data with userId matching Firestore rules
+      // Prepare workout data
       const workoutData = {
         ...formData,
-        userId: user.uid, // Ensure this matches the Firestore rules
-        date: new Date(formData.date).toISOString(), // Ensure the date is in ISO format
+        userId: user.uid,
+        date: new Date(formData.date).toISOString(),
       };
 
       // Add document to Firestore
       await addDoc(collection(db, "workouts"), workoutData);
 
       alert("Workout added successfully!");
-      navigate("/"); // Redirect to the home page
+      navigate("/");
     } catch (error) {
-      console.error("Error adding workout:", error); // Log errors for debugging
+      console.error("Error adding workout:", error);
       alert("Failed to add workout. Please try again.");
     }
   };
@@ -107,7 +105,7 @@ const WorkoutForm: React.FC = () => {
           </ul>
         </div>
 
-        {/* Date */}
+        {/* Common Fields */}
         <div>
           <label
             htmlFor="date"
@@ -126,7 +124,6 @@ const WorkoutForm: React.FC = () => {
           />
         </div>
 
-        {/* Duration */}
         <div>
           <label
             htmlFor="duration_minutes"
@@ -145,7 +142,98 @@ const WorkoutForm: React.FC = () => {
           />
         </div>
 
-        {/* Additional Fields Based on Type */}
+        <div>
+          <label
+            htmlFor="details"
+            className="block font-medium text-gray-700 mb-2"
+          >
+            Additional Details
+          </label>
+          <textarea
+            id="details"
+            name="details"
+            value={formData.details}
+            onChange={handleChange}
+            className="block w-full border p-3 rounded-lg shadow-sm"
+            placeholder="Add any relevant details"
+          />
+        </div>
+
+        {/* Conditional Fields */}
+        {formData.type === "running" && (
+          <>
+            <div>
+              <label
+                htmlFor="start_location"
+                className="block font-medium text-gray-700 mb-2"
+              >
+                Start Location
+              </label>
+              <input
+                type="text"
+                id="start_location"
+                name="start_location"
+                value={formData.start_location}
+                onChange={handleChange}
+                className="block w-full border p-3 rounded-lg shadow-sm"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="end_location"
+                className="block font-medium text-gray-700 mb-2"
+              >
+                End Location
+              </label>
+              <input
+                type="text"
+                id="end_location"
+                name="end_location"
+                value={formData.end_location}
+                onChange={handleChange}
+                className="block w-full border p-3 rounded-lg shadow-sm"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="distance"
+                className="block font-medium text-gray-700 mb-2"
+              >
+                Distance (km)
+              </label>
+              <input
+                type="number"
+                id="distance"
+                name="distance"
+                value={formData.distance}
+                onChange={handleChange}
+                className="block w-full border p-3 rounded-lg shadow-sm"
+              />
+            </div>
+          </>
+        )}
+
+        {(formData.type === "functional" || formData.type === "running") && (
+          <div>
+            <label
+              htmlFor="calories_burned"
+              className="block font-medium text-gray-700 mb-2"
+            >
+              Calories Burned (Optional)
+            </label>
+            <input
+              type="number"
+              id="calories_burned"
+              name="calories_burned"
+              value={formData.calories_burned}
+              onChange={handleChange}
+              className="block w-full border p-3 rounded-lg shadow-sm"
+            />
+          </div>
+        )}
+
         {formData.type === "gym" && (
           <div>
             <label
@@ -158,9 +246,9 @@ const WorkoutForm: React.FC = () => {
               type="text"
               id="main_muscles"
               name="main_muscles"
-              placeholder="Comma-separated muscles (e.g., chest, arms)"
               value={formData.main_muscles}
               onChange={handleChange}
+              placeholder="Comma-separated (e.g., chest, arms)"
               className="block w-full border p-3 rounded-lg shadow-sm"
             />
           </div>
@@ -178,9 +266,9 @@ const WorkoutForm: React.FC = () => {
               type="text"
               id="poses"
               name="poses"
-              placeholder="Comma-separated poses (e.g., downward dog, cobra)"
               value={formData.poses}
               onChange={handleChange}
+              placeholder="Comma-separated (e.g., downward dog, cobra)"
               className="block w-full border p-3 rounded-lg shadow-sm"
             />
           </div>
@@ -198,31 +286,13 @@ const WorkoutForm: React.FC = () => {
               type="text"
               id="equipment_used"
               name="equipment_used"
-              placeholder="Comma-separated equipment (e.g., kettlebell, rope)"
               value={formData.equipment_used}
               onChange={handleChange}
+              placeholder="Comma-separated (e.g., kettlebell, rope)"
               className="block w-full border p-3 rounded-lg shadow-sm"
             />
           </div>
         )}
-
-        {/* Optional Details */}
-        <div>
-          <label
-            htmlFor="details"
-            className="block font-medium text-gray-700 mb-2"
-          >
-            Additional Details (Optional)
-          </label>
-          <textarea
-            id="details"
-            name="details"
-            placeholder="Add any other relevant details about the workout"
-            value={formData.details}
-            onChange={handleChange}
-            className="block w-full border p-3 rounded-lg shadow-sm"
-          />
-        </div>
 
         <div className="flex flex-col items-center space-y-4 mt-6">
           <button

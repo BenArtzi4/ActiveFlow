@@ -42,7 +42,7 @@ const WorkoutList = () => {
         if (!querySnapshot.empty) {
           const workoutsData = querySnapshot.docs
             .map((doc) => {
-              const data = doc.data() as Omit<Workout, "id">; // Exclude `id` from the type
+              const data = doc.data() as Omit<Workout, "id">;
               return {
                 id: doc.id,
                 ...data,
