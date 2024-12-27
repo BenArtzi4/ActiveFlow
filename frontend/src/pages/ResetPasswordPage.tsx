@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { confirmPasswordReset } from "firebase/auth";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { auth } from "../firebaseConfig";
 
 const ResetPasswordPage: React.FC = () => {
   const [password, setPassword] = useState("");
