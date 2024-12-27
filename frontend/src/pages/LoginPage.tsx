@@ -174,6 +174,15 @@ const LoginPage: React.FC = () => {
             Register
           </span>
         </button>
+        {/* Forgot Password Button */}
+        <div className="text-center mt-2">
+          <button
+            onClick={() => navigate("/forgot-password")}
+            className="text-sm font-medium text-sky-600 hover:underline"
+          >
+            Forgot your password?
+          </button>
+        </div>
       </div>
     </div>
   );
