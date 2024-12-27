@@ -6,14 +6,14 @@ export default defineConfig({
   css: {
     postcss: "./postcss.config.js",
   },
-  publicDir: "public", // Ensure public directory is configured correctly
+  publicDir: "public",
   build: {
-    outDir: "dist", // Ensure build output goes to the "dist" directory
-    emptyOutDir: true, // Clean the output directory before building
+    outDir: "dist",
+    emptyOutDir: true,
   },
   resolve: {
     alias: {
-      "@": "/src", // Optional: Alias for cleaner imports
+      "@": "/src",
     },
   },
 });
