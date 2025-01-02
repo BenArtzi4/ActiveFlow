@@ -139,40 +139,38 @@ const LoginPage: React.FC = () => {
             <span className="relative z-10">Login</span>
           </button>
         </form>
-        {/* Login with Google Button */}
+        {/* Sign in with Google Button */}
         <button
           onClick={handleGoogleSignIn}
-          className="relative inline-flex items-center justify-center px-16 py-4 overflow-hidden text-lg font-medium text-white bg-sky-500 border-2 border-sky-500 rounded-full w-full mt-4 group"
+          className="relative inline-flex items-center justify-center px-16 py-4 overflow-hidden text-lg font-medium text-sky-600 bg-gray-50 border-2 border-sky-500 rounded-full group w-full mt-4"
         >
+          {/* Google Icon */}
           <img
-            src="/images/google-white-icon.png"
+            src="/images/google-blue-icon.png"
             alt="Google Logo"
             className="w-6 h-6 relative z-10 group-hover:hidden"
           />
           <img
-            src="/images/google-blue-icon.png"
+            src="/images/google-white-icon.png"
             alt="Google Logo Hover"
             className="w-6 h-6 relative z-10 hidden group-hover:block"
           />
-          <span className="relative z-10 ml-2 group-hover:text-sky-500 transition-opacity duration-300">
+
+          {/* Text */}
+          <span className="relative z-10 ml-2 transition-colors duration-300 group-hover:text-white">
             Sign in with Google
           </span>
-          <span className="absolute left-0 block w-full h-full bg-white top-0 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-in-out z-0"></span>
+
+          {/* Background Transition */}
+          <span className="absolute left-0 block w-full h-0 transition-all bg-sky-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out z-0"></span>
         </button>
         {/* Register Button */}
         <button
           onClick={() => navigate("/register")}
-          className="relative inline-flex items-center justify-center px-16 py-4 overflow-hidden text-lg font-medium text-sky-600 bg-gray-50 border-2 border-sky-500 rounded-full hover:text-white group hover:bg-gray-50 w-full mt-4"
+          className="relative inline-flex items-center justify-center px-16 py-4 overflow-hidden text-lg font-medium text-gray-600 bg-gray-50 border-2 border-gray-500 rounded-full hover:text-white group w-full mt-4"
         >
-          <span className="absolute left-0 block w-full h-0 transition-all bg-sky-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
-          <span className="relative z-10 group-hover:opacity-0 transition-opacity duration-300 text-lg">
-            Don't have an account?
-            <br />
-            Register here
-          </span>
-          <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            Register
-          </span>
+          <span className="absolute left-0 block w-full h-0 transition-all bg-gray-500 opacity-100 group-hover:h-full top-1/2 group-hover:top-0 duration-300 ease-in-out"></span>
+          <span className="relative z-10">Register</span>
         </button>
         {/* Forgot Password Button */}
         <div className="text-center mt-2">
